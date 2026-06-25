@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard - FoodShare AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1593113598385-7d1681d52277');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+        }
+
+        nav {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h2 {
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .user-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-info h2 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .dashboard-title {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-align: center;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            width: 300px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card .icon {
+            font-size: 50px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .card .btn {
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        .card .btn:hover {
+            background: #45a049;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #2e7d32;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 40px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2>FoodShare AI</h2>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/donor_food">Donate Food</a></li>
+        </ul>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Donor Dashboard</h1>
+
+        <!-- User Info -->
+        <div class="user-info">
+            <h2>Welcome, {{ name }}</h2>
+            <p>Organization: {{ organization }}</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Donations</h3>
+                <div class="number">{{ total_donations }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Food Donated (kg)</h3>
+                <div class="number">{{ food_donated }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>NGOs Helped</h3>
+                <div class="number">{{ ngos_helped }}</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="cards">
+
+            <div class="card">
+                <div class="icon">🍽️</div>
+                <h3>Donate Food</h3>
+                <p>Add new food donation details</p>
+                <a href="/donor_food" class="btn">Donate Now</a>
+            </div>
+
+            <div class="card">
+                <div class="icon">📋</div>
+                <h3>My Donations</h3>
+                <p>View all your food donations</p>
+                <a href="/my_donations" class="btn">View Details</a>
+            </div>
+
+            <div class="card">
+                <div class="icon">📊</div>
+                <h3>Statistics</h3>
+                <p>See your donation impact</p>
+                <a href="/donor_statistics" class="btn">View Stats</a>
+            </div>
+
+            <div class="card">
+                <div class="icon">🚪</div>
+                <h3>Logout</h3>
+                <p>Logout from your account</p>
+                <a href="/logout" class="btn">Logout</a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            © 2026 AI Food Waste Redistribution System | SDG 12:
+            Responsible Consumption and Production
+        </p>
+    </footer>
+
+</body>
+</html>
+
+donor dashboard.html    donor dashboard

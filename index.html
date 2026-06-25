@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Food Waste Redistribution System</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body{
+            background-color:#f4f4f4;
+        }
+
+        nav{
+            background-color:#2e7d32;
+            color:white;
+            padding:15px 50px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        nav h2{
+            font-size:24px;
+        }
+
+        nav ul{
+            list-style:none;
+            display:flex;
+            gap:20px;
+        }
+
+        nav ul li a{
+            text-decoration:none;
+            color:white;
+            font-weight:bold;
+        }
+
+        .hero{
+            height:80vh;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            background:linear-gradient(rgba(0,0,0,0.5),
+            rgba(0,0,0,0.5)),
+            url('https://images.unsplash.com/photo-1488459716781-31db52582fe9');
+            background-size:cover;
+            background-position:center;
+            color:white;
+        }
+
+        .hero h1{
+            font-size:50px;
+            margin-bottom:20px;
+        }
+
+        .hero p{
+            width:70%;
+            font-size:20px;
+            margin-bottom:30px;
+        }
+
+        .btn{
+            padding:12px 25px;
+            background:#4CAF50;
+            color:white;
+            text-decoration:none;
+            border-radius:5px;
+            font-size:18px;
+        }
+
+        .features{
+            padding:50px;
+            text-align:center;
+        }
+
+        .features h2{
+            margin-bottom:30px;
+            color:#2e7d32;
+        }
+
+        .cards{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+
+        .card{
+            background:white;
+            width:300px;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .card h3{
+            color:#2e7d32;
+            margin-bottom:10px;
+        }
+
+        footer{
+            background:#2e7d32;
+            color:white;
+            text-align:center;
+            padding:15px;
+            margin-top:40px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2>FoodShare AI</h2>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <h1>AI-Powered Food Waste Redistribution</h1>
+
+        <p>
+            Connecting food donors with NGOs using Artificial Intelligence
+            to reduce food waste and help people in need.
+        </p>
+
+        <a href="/register" class="btn">Get Started</a>
+    </section>
+
+    <section class="features">
+
+        <h2>Our Features</h2>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>Food Donation</h3>
+                <p>
+                    Restaurants, hotels, and canteens can easily
+                    donate surplus food.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>AI Matching</h3>
+                <p>
+                    AI recommends the best NGO based on location,
+                    food quantity, and urgency.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Food Rescue</h3>
+                <p>
+                    Reduce food waste while helping communities
+                    and supporting SDG Goals.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <p>
+            © 2026 AI Food Waste Redistribution System | SDG 12:
+            Responsible Consumption and Production
+        </p>
+    </footer>
+
+</body>
+</html>
+
+index.html homepage

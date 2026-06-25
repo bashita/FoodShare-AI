@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>All Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #009879;
+            color: white;
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 16px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #eefaf7;
+        }
+
+        a {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #d9534f;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            background: #c9302c;
+        }
+    </style>
+</head>
+<body>
+
+<h1>All Users</h1>
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+<td>{{ user.id }}</td>
+<td>{{ user.name }}</td>
+<td>{{ user.email }}</td>
+<td>{{ user.role }}</td>
+<td>
+<a href="/delete_user/{{ user.id }}">
+Delete
+</a>
+</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

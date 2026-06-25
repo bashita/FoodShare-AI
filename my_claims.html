@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Claims</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        .table-card {
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        th {
+            background: #009879;
+            color: white;
+            text-align: left;
+            padding: 14px 16px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #eefaf7;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .btn-group {
+            background: #2e7d32;
+        }
+
+        .btn-group:hover {
+            background: #1b5e20;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .table-card {
+                width: 100%;
+                padding: 12px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>My Claimed Food</h1>
+
+<div class="table-card">
+    <table border="1">
+
+</tr>
+
+{% for c in claims %}
+
+<tr>
+    <td>{{ c.food_name }}</td>
+    <td>{{ c.quantity }}</td>
+    <td>{{ c.status }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+    <div class="button-group">
+            <a href="/ngo_dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>
