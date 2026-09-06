@@ -1,11 +1,72 @@
+import os
+import smtplib
+from email.message import EmailMessage
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pymysql
 from datetime import datetime
 import requests
 import json
+from dotenv import load_dotenv
+from werkzeug.security import check_password_hash, generate_password_hash
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "foodshare_secret_key"
+default_secret_key = "foodshare-local-development-secret-change-in-production"
+app.secret_key = os.environ.get(
+    "FLASK_SECRET_KEY",
+    default_secret_key
+)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("FLASK_SECURE_COOKIES", "0") == "1",
+)
+RESET_TOKEN_MAX_AGE = 3600
+PASSWORD_RESET_DEV_MODE = os.environ.get(
+    "PASSWORD_RESET_DEV_MODE",
+    "1" if app.secret_key == default_secret_key else "0"
+) == "1"
+
+
+def create_reset_token(user):
+    serializer = URLSafeTimedSerializer(app.secret_key)
+    return serializer.dumps({"user_id": user["id"], "email": user["email"]}, salt="password-reset")
+
+
+def read_reset_token(token):
+    serializer = URLSafeTimedSerializer(app.secret_key)
+    return serializer.loads(token, max_age=RESET_TOKEN_MAX_AGE, salt="password-reset")
+
+
+def send_reset_email(email, reset_url):
+    smtp_host = os.environ.get("SMTP_HOST")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+    smtp_username = os.environ.get("SMTP_USERNAME")
+    smtp_password = os.environ.get("SMTP_PASSWORD")
+    sender = os.environ.get("RESET_EMAIL_SENDER", smtp_username)
+    use_ssl = os.environ.get("SMTP_USE_SSL", "0") == "1"
+
+    if not all((smtp_host, smtp_username, smtp_password, sender)):
+        return False
+
+    message = EmailMessage()
+    message["Subject"] = "Reset your FoodShare AI password"
+    message["From"] = sender
+    message["To"] = email
+    message.set_content(
+        "Use this link to reset your FoodShare AI password. "
+        f"The link expires in one hour:\n\n{reset_url}"
+    )
+
+    smtp_class = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
+    with smtp_class(smtp_host, smtp_port, timeout=15) as smtp:
+        if not use_ssl:
+            smtp.starttls()
+        smtp.login(smtp_username, smtp_password)
+        smtp.send_message(message)
+    return True
 
 
 # ==========================
@@ -14,10 +75,11 @@ app.secret_key = "foodshare_secret_key"
 
 def get_connection():
     return pymysql.connect(
-        host="localhost",
-        user="root",
-        password="mysql",          # Add your MySQL password if any
-        database="food",
+        host=os.environ.get("DB_HOST", "localhost"),
+        port=int(os.environ.get("DB_PORT", "3306")),
+        user=os.environ.get("DB_USER", "root"),
+        password=os.environ.get("DB_PASSWORD", "mysql"),
+        database=os.environ.get("DB_NAME", "food"),
         cursorclass=pymysql.cursors.DictCursor
     )
 
@@ -25,7 +87,6 @@ def get_connection():
 # ==========================
 # AI Priority Function (Gemini-Powered)
 # ==========================
-
 def get_ai_food_analysis(food_description, storage_condition, hours_since_prep):
     """
     Call the FastAPI Gemini endpoint to get AI-powered food analysis.
@@ -111,88 +172,153 @@ def register_page():
 def login_page():
     return render_template('loginuser.html')
 
+
+# PASSWORD RESET
 # ==========================
+
+@app.route('/forgot-password')
+def forgot_password_page():
+    return render_template('forgot_password.html')
+
+
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    email = request.form.get('email', '').strip().lower()
+    reset_url = None
+
+    if email:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email FROM users WHERE email=%s", (email,))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            token = create_reset_token(user)
+            reset_url = url_for('reset_password', token=token, _external=True)
+            try:
+                email_sent = send_reset_email(email, reset_url)
+            except (OSError, smtplib.SMTPException, ValueError) as error:
+                email_sent = False
+                app.logger.error("Password reset email failed: %s", error)
+
+            if email_sent:
+                reset_url = None
+            elif PASSWORD_RESET_DEV_MODE:
+                app.logger.warning("Password reset email is not configured. Reset URL: %s", reset_url)
+
+    # Do not reveal whether an email is registered.
+    flash("If an account exists for that email, password reset instructions have been sent.")
+    if reset_url and PASSWORD_RESET_DEV_MODE:
+        flash(f"Development reset link: {reset_url}")
+    return redirect(url_for('forgot_password_page'))
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        token_data = read_reset_token(token)
+    except (BadSignature, SignatureExpired):
+        flash("This password reset link is invalid or has expired.")
+        return redirect(url_for('forgot_password_page'))
+
+    if request.method == 'GET':
+        return render_template('reset_password.html', token=token)
+
+    password = request.form.get('password', '')
+    confirm_password = request.form.get('confirm-password', '')
+    if len(password) < 8 or password != confirm_password:
+        flash("Passwords must match and be at least 8 characters long.")
+        return render_template('reset_password.html', token=token)
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE users SET password=%s WHERE id=%s AND email=%s",
+        (generate_password_hash(password), token_data['user_id'], token_data['email'])
+    )
+    conn.commit()
+    conn.close()
+    flash("Your password has been reset. You can now log in.")
+    return redirect(url_for('login_page'))
+
+
 # REGISTER USER
 # ==========================
 
 @app.route('/register', methods=['POST'])
 def register():
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    phone = request.form.get('phone', '').strip()
+    organization = request.form.get('organization', '').strip()
+    address = request.form.get('address', '').strip()
+    city = request.form.get('city', '').strip()
+    password = request.form.get('password', '')
+    confirm_password = request.form.get('confirm-password', '')
+    user_type = request.form.get('userType', '')
 
-    name = request.form['name']
-    email = request.form['email']
-    phone = request.form['phone']
-    organization = request.form['organization']
-    address = request.form['address']
-    city = request.form['city']
-    password = request.form['password']
-    user_type = request.form['userType']
+    if user_type not in {'donor', 'ngo'}:
+        flash("Please select a valid account type.")
+        return redirect('/register')
+
+    if len(password) < 8 or password != confirm_password:
+        flash("Passwords must match and be at least 8 characters long.")
+        return redirect('/register')
 
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Check if email already exists
-    cursor.execute(
-        "SELECT * FROM users WHERE email=%s",
-        (email,)
-    )
-
-    existing_user = cursor.fetchone()
-
-    if existing_user:
+    cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
+    if cursor.fetchone():
         flash("Email already registered!")
         conn.close()
         return redirect('/register')
 
-    # Insert new user
     cursor.execute("""
         INSERT INTO users
         (name,email,phone,organization,address,city,password,user_type)
         VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
     """, (
-        name,
-        email,
-        phone,
-        organization,
-        address,
-        city,
-        password,
-        user_type
+        name, email, phone, organization, address, city,
+        generate_password_hash(password), user_type
     ))
 
     conn.commit()
     conn.close()
-
     flash("Registration Successful!")
-
     return redirect('/login')
 
 
-# ==========================
 # LOGIN USER
 # ==========================
 
 @app.route('/login', methods=['POST'])
 def login():
-
-    email = request.form['email']
-    password = request.form['password']
-    user_type = request.form['userType']
+    email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+    user_type = request.form.get('userType', '')
 
     conn = get_connection()
     cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT * FROM users
-        WHERE email=%s
-        AND password=%s
-        AND user_type=%s
-    """, (
-        email,
-        password,
-        user_type
-    ))
-
+    cursor.execute(
+        "SELECT * FROM users WHERE email=%s AND user_type=%s",
+        (email, user_type)
+    )
     user = cursor.fetchone()
+
+    if user:
+        stored_password = user.get('password', '')
+        valid_password = check_password_hash(stored_password, password)
+        if not valid_password and stored_password == password:
+            valid_password = True
+            cursor.execute(
+                "UPDATE users SET password=%s WHERE id=%s",
+                (generate_password_hash(password), user['id'])
+            )
+            conn.commit()
+        if not valid_password:
+            user = None
 
     conn.close()
 
@@ -200,75 +326,56 @@ def login():
         flash("Invalid Login Credentials")
         return redirect('/login')
 
-    # Store session data
+    session.clear()
     session['user_id'] = user['id']
     session['name'] = user['name']
+    session['email'] = user['email']
     session['user_type'] = user['user_type']
     session['organization'] = user['organization']
 
-    # Redirect according to user_type
     if user['user_type'] == 'donor':
         return redirect('/donor_dashboard')
-
-    elif user['user_type'] == 'ngo':
+    if user['user_type'] == 'ngo':
         return redirect('/ngo_dashboard')
+    return redirect('/admin')
 
-    return redirect('/')
 
-
-# ==========================
 # ADMIN LOGIN
 # ==========================
 
 @app.route('/admin_login')
 def admin_login():
-
-    session['name'] = "Admin"
-    session['user_type'] = "admin"
-
-    return redirect('/admin')
+    flash("Please sign in with an administrator account.")
+    return redirect('/login')
 
 
-# ==========================
 # LOGOUT
 # ==========================
 
 @app.route('/logout')
 def logout():
-
     session.clear()
-
     flash("Logged Out Successfully")
-
     return redirect('/')
 
 
-# ==========================
 # SESSION CHECK HELPERS
 # ==========================
 
 def donor_required():
-
-    if 'user_id' not in session:
-        return False
-
-    if session.get('user_type') != 'donor':
-        return False
-
-    return True
+    return 'user_id' in session and session.get('user_type') == 'donor'
 
 
 def ngo_required():
+    return 'user_id' in session and session.get('user_type') == 'ngo'
 
-    if 'user_id' not in session:
-        return False
 
-    if session.get('user_type') != 'ngo':
-        return False
+def admin_required():
+    return 'user_id' in session and session.get('user_type') == 'admin'
 
-    return True
 
 # ==========================
+# DONATE FOOD PAGE
 # DONATE FOOD PAGE
 # ==========================
 
@@ -815,6 +922,9 @@ def my_claims():
 @app.route('/admin')
 def admin_dashboard():
 
+    if not admin_required():
+        return redirect('/login')
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -856,6 +966,47 @@ def admin_dashboard():
     """)
     pending_claims = cursor.fetchone()['pending_claims']
 
+    cursor.execute("""
+        SELECT id, name, email, user_type, organization
+        FROM users
+        WHERE user_type IN ('donor', 'ngo')
+        ORDER BY id DESC
+        LIMIT 5
+    """)
+    recent_users = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT d.id, d.food_name, d.quantity, d.status, d.expiry_date,
+               u.organization AS donor_organization
+        FROM donations d
+        JOIN users u ON d.donor_id = u.id
+        ORDER BY d.id DESC
+        LIMIT 5
+    """)
+    recent_donations = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT preparation_date AS donation_date, COUNT(*) AS total
+        FROM donations
+        WHERE preparation_date IS NOT NULL
+        GROUP BY preparation_date
+        ORDER BY preparation_date DESC
+        LIMIT 12
+    """)
+    donation_trend = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT food_type, COUNT(*) AS total, COALESCE(SUM(quantity), 0) AS quantity
+        FROM donations
+        GROUP BY food_type
+        ORDER BY total DESC
+        LIMIT 8
+    """)
+    food_distribution = cursor.fetchall()
+
+    max_trend = max((item['total'] for item in donation_trend), default=0)
+    max_food_quantity = max((float(item['quantity']) for item in food_distribution), default=0)
+
     conn.close()
 
     return render_template(
@@ -865,7 +1016,13 @@ def admin_dashboard():
         total_food=total_food,
         total_ngos=total_ngos,
         total_people=total_people,
-        pending_claims=pending_claims
+        pending_claims=pending_claims,
+        recent_users=recent_users,
+        recent_donations=recent_donations,
+        donation_trend=donation_trend,
+        food_distribution=food_distribution,
+        max_trend=max_trend,
+        max_food_quantity=max_food_quantity
     )
 
 # ==========================
@@ -874,6 +1031,9 @@ def admin_dashboard():
 
 @app.route('/all_users')
 def all_users():
+
+    if not admin_required():
+        return redirect('/login')
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -900,6 +1060,9 @@ def all_users():
 @app.route('/delete_user/<int:user_id>')
 def delete_user(user_id):
 
+    if not admin_required():
+        return redirect('/login')
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -922,6 +1085,9 @@ def delete_user(user_id):
 @app.route('/reports')
 def reports():
 
+    if not admin_required():
+        return redirect('/login')
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -938,7 +1104,7 @@ def reports():
     conn.close()
 
     return render_template(
-        'reports.html',
+        'create_reports.html',
         food_types=food_types
     )
 
@@ -949,18 +1115,19 @@ def reports():
 @app.route('/donation_history')
 def donation_history():
 
+    if not admin_required():
+        return redirect('/login')
+
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
         SELECT
             d.id,
-            d.food_name,
-            d.food_type,
+            d.food_name AS food_item,
             d.quantity,
-            d.people_served,
-            d.status,
-            u.organization
+            d.expiry_date AS donation_date,
+            u.organization AS donor_name
         FROM donations d
         JOIN users u
         ON d.donor_id = u.id
@@ -972,7 +1139,7 @@ def donation_history():
     conn.close()
 
     return render_template(
-        'donation_history.html',
+        'all_donations.html',
         donations=donations
     )
 
@@ -982,6 +1149,9 @@ def donation_history():
 
 @app.route('/claim_history')
 def claim_history():
+
+    if not admin_required():
+        return redirect('/login')
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -1015,6 +1185,9 @@ def claim_history():
 
 @app.route('/stats')
 def stats():
+
+    if not admin_required():
+        return redirect('/login')
 
     conn = get_connection()
     cursor = conn.cursor()
