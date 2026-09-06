@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Donations</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        .table-card {
+            width: 95%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        th {
+            background: #2e7d32;
+            color: white;
+            text-align: left;
+            padding: 14px 16px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #eefaf7;
+        }
+
+        .priority {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-weight: bold;
+            font-size: 14px;
+            background: #e8f4ff;
+            color: #005b96;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.approved {
+            background: #d4edda;
+            color: #2e7d32;
+        }
+
+        .status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.claimed {
+            background: #d1ecf1;
+            color: #2e7d32;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #2e7d32;
+        }
+
+        .btn-secondary:hover {
+            background: #1b5e20;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .table-card {
+                width: 100%;
+                padding: 12px;
+            }
+
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>My Donations</h1>
+    
+<div class="table-card">
+    <table border="1">
+
+    <tr>
+        <th>Food</th>
+        <th>Quantity</th>
+        <th>Priority</th>
+        <th>Status</th>
+    </tr>
+
+    {% for d in donations %}
+    <tr>
+        <td>{{ d.food_name }}</td>
+        <td>{{ d.quantity }}</td>
+        <td>{{ d.ai_priority }}</td>
+        <td>{{ d.status }}</td>
+    </tr>
+    {% endfor %}
+
+    </table>
+    <div class="button-group">
+            <a href="/donor_dashboard" class="btn btn-secondary" style="color: white; text-decoration: none;">Back to Dashboard</a>  
+    </div>
+
+    <footer>
+        <p>
+            © 2026 AI Food Waste Redistribution System | SDG 12:
+            Responsible Consumption and Production
+        </p>
+    </footer>
+
+</body>
+</html>

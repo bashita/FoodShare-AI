@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>All Donations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #2e7d32;
+            color: #fff;
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 16px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e6e6e6;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #eefaf7;
+        }
+
+        a {
+            color: #d9534f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>All Donations</h1>
+
+<table border="1">
+
+<tr>
+<th>ID</th>
+<th>Donor Name</th>
+<th>Food Item</th>
+<th>Quantity</th>
+<th>Donation Date</th>
+</tr>
+
+{% for donation in donations %}
+
+<tr>
+<td>{{ donation.id }}</td>
+<td>{{ donation.donor_name }}</td>
+<td>{{ donation.food_item }}</td>
+<td>{{ donation.quantity }}</td>
+<td>{{ donation.donation_date }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Food - FoodShare AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h2 {
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        .page-container {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 36px;
+            text-align: center;
+        }
+
+        .search-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-filter input,
+        .search-filter select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .search-filter input {
+            flex: 2;
+        }
+
+        .search-filter select {
+            flex: 1;
+        }
+
+        .search-btn {
+            padding: 12px 25px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-btn:hover {
+            background: #45a049;
+        }
+
+        .food-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .food-card {
+            background: white;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .food-image {
+            height: 200px;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1543333955502-932d2e046044');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .food-info {
+            padding: 20px;
+        }
+
+        .food-info h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .food-info p {
+            color: #666;
+            font-size: 15px;
+            margin: 8px 0;
+        }
+
+        .food-info .label {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .food-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .food-badge.urgent {
+            background: #f44336;
+        }
+
+        .food-badge.good {
+            background: #ff9800;
+        }
+
+        .food-card .btn {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .food-card .btn:hover {
+            background: #45a049;
+        }
+
+        .food-card .btn-secondary {
+            background: #2e7d32;
+        }
+
+        .food-card .btn-secondary:hover {
+            background: #1b5e20;
+        }
+
+        .no-food {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+
+        .no-food h3 {
+            color: #2e7d32;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .no-food p {
+            color: #666;
+            font-size: 18px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #2e7d32;
+        }
+
+        .btn-secondary:hover {
+            background: #1b5e20;
+        }
+
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2>FoodShare AI</h2>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/register">Register</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/ngo_dashboard">NGO Dashboard</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-container">
+        <h1 class="page-title">🍽️ Available Food for Claim</h1>
+
+        <!-- Search & Filter -->
+        <div class="search-filter">
+            <input type="text" placeholder="Search food name..." id="search-food">
+
+            <select id="filter-type">
+                <option value="">All Food Types</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="non-vegetarian">Non-Vegetarian</option>
+                <option value="vegan">Vegan</option>
+                <option value="bread-bakery">Bread & Bakery</option>
+                <option value="fruits-vegetables">Fruits & Vegetables</option>
+            </select>
+
+            <select id="filter-condition">
+                <option value="">All Conditions</option>
+                <option value="fresh">Fresh</option>
+                <option value="good">Good</option>
+                <option value="acceptable">Acceptable</option>
+            </select>
+
+            <div id="filter-city">
+                <input type="text" placeholder="Search city..." id="search-city">
+            </div>
+
+            <button class="search-btn">Search</button>
+        </div>
+ 
+
+{% for food in foods %}
+
+<div class="food-card">
+
+    <div class="food-image"></div>
+
+    <div class="food-info">
+
+        <h3>{{ food.food_name }}</h3>
+
+        <p><span class="label">Quantity:</span> {{ food.quantity }} kg</p>
+
+        <p><span class="label">People Served:</span> {{ food.people_served }}</p>
+
+        <p><span class="label">Type:</span> {{ food.food_type }}</p>
+
+        <p><span class="label">Condition:</span> {{ food.food_condition }}</p>
+
+        <p><span class="label">AI Priority:</span> {{ food.ai_priority }}</p>
+
+        <p><span class="label">Donor:</span> {{ food.organization }}</p>
+
+        <p><span class="label">Location:</span> {{ food.location }}</p>
+
+        <p><span class="label">Contact:</span> {{ food.contact }}</p>
+
+        <a href="/claim/{{ food.id }}" class="btn">
+            Claim Food
+        </a>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+        <!-- No Food Message (show if no results) -->
+        <!-- <div class="no-food">
+            <h3>😔 No Food Available</h3>
+            <p>There is no food available matching your criteria. Try adjusting your filters.</p>
+        </div> -->
+
+        <!-- Buttons -->
+        <div class="button-group">
+            <a href="/ngo_dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            © 2026 AI Food Waste Redistribution System | SDG 12:
+            Responsible Consumption and Production
+        </p>
+    </footer>
+
+</body>
+</html>
