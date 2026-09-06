@@ -186,6 +186,10 @@
                     <input type="radio" name="userType" value="ngo" required>
                     NGO
                 </label>
+                <label>
+                    <input type="radio" name="userType" value="admin" required>
+                    Admin
+                </label>
             </div>
 
             <!-- Email -->
@@ -202,7 +206,7 @@
 
             <!-- Forgot Password -->
             <div style="text-align: right; margin-bottom: 20px;">
-                <a href="#" style="color: #2e7d32; text-decoration: none; font-size: 14px;">Forgot Password?</a>
+                <a href="{{ url_for('forgot_password_page') }}" style="color: #2e7d32; text-decoration: none; font-size: 14px;">Forgot Password?</a>
             </div>
 
             <!-- Submit Button -->
@@ -225,4 +229,3 @@
 </body>
 </html>
 
-loginuser.html   login page
