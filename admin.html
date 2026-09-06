@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FoodShare AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b0c');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav h2 {
+            font-size: 24px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dashboard-container {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-title {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-align: center;
+        }
+
+        .admin-info {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-info h2 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .admin-info p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* Overview Stats */
+        .overview-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 280px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .stat-card .icon {
+            font-size: 50px;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            color: #2e7d32;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 48px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .stat-card .subtitle {
+            color: #999;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Management Sections */
+        .management-sections {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .section-card {
+            background: white;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        .section-content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .data-list {
+            margin-bottom: 20px;
+        }
+
+        .data-item {
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-item-info h4 {
+            color: #2e7d32;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .data-item-info p {
+            color: #666;
+            font-size: 13px;
+            margin: 3px 0;
+        }
+
+        .data-item .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .data-item .btn {
+            padding: 8px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .data-item .btn:hover {
+            background: #45a049;
+        }
+
+        .data-item .btn-danger {
+            background: #f44336;
+        }
+
+        .data-item .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .data-item .btn-warning {
+            background: #ff9800;
+        }
+
+        .data-item .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .btn-secondary {
+            background: #2e7d32;
+        }
+
+        .btn-secondary:hover {
+            background: #1b5e20;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        /* Charts Section */
+        .charts-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .charts-section h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .charts-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-card {
+            width: 500px;
+            min-height: 300px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            color: #2e7d32;
+            margin-bottom: 18px;
+        }
+
+        .chart-row {
+            margin-bottom: 14px;
+        }
+
+        .chart-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .chart-track {
+            width: 100%;
+            height: 14px;
+        }
+
+        .chart-bar {
+            width: 100%;
+            height: 100%;
+            accent-color: #4CAF50;
+        }
+
+        .chart-empty {
+            color: #777;
+            font-size: 14px;
+        }
+
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <h2>FoodShare AI</h2>
+
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/all_users">Users</a></li>
+            <li><a href="/reports">Reports</a></li>
+            <li><a href="/logout">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">🔐 Admin Dashboard</h1>
+
+        <!-- Admin Info -->
+        <div class="admin-info">
+            <h2>Welcome, Admin</h2>
+            <p>Email: {{ session.get('email', 'Administrator') }}</p>
+            <p>Role: System Administrator</p>
+        </div>
+
+        <!-- Overview Statistics -->
+        <div class="overview-stats">
+            <div class="stat-card">
+                <div class="icon">👥</div>
+                <h3>Total Users</h3>
+                <div class="number">{{ total_users }}</div>
+                <div class="subtitle">Registered accounts</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🍽️</div>
+                <h3>Total Donations</h3>
+                <div class="number">{{ total_donations }}</div>
+                <div class="subtitle">All donations</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">📦</div>
+                <h3>Food Donated</h3>
+                <div class="number">{{ total_food }}</div>
+                <div class="subtitle">kg total</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🏢</div>
+                <h3>NGOs Helped</h3>
+                <div class="number">{{ total_ngos }}</div>
+                <div class="subtitle">Registered NGOs</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">👨‍👩‍👧‍👦</div>
+                <h3>People Served</h3>
+                <div class="number">{{ total_people }}</div>
+                <div class="subtitle">Total beneficiaries</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🔴</div>
+                <h3>Pending Claims</h3>
+                <div class="number">{{ pending_claims }}</div>
+                <div class="subtitle">Need attention</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a class="btn" href="/all_users">View All Users</a>
+            <a class="btn" href="/donation_history">View All Donations</a>
+            <a class="btn" href="/reports">View Reports</a>
+            <a class="btn btn-danger" href="/logout">Logout</a>
+        </div>
+
+        <!-- Management Sections -->
+        <div class="management-sections">
+
+            <!-- User Management -->
+            <div class="section-card">
+                <div class="section-header">👥 User Management</div>
+                <div class="section-content">
+                    <p>Manage all registered donors and NGOs</p>
+
+                    <div class="data-list">
+                        {% for user in recent_users %}
+                        <div class="data-item">
+                            <div class="data-item-info">
+                                <h4>{{ user.name }}</h4>
+                                <p>Type: {{ user.user_type|capitalize }} | Email: {{ user.email }}</p>
+                                <p>Organization: {{ user.organization or 'Not provided' }}</p>
+                            </div>
+                            <div class="actions">
+                                <a class="btn btn-danger" href="{{ url_for('delete_user', user_id=user.id) }}"
+                                   onclick="return confirm('Delete this user?');">Delete</a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p>No donor or NGO accounts found.</p>
+                        {% endfor %}
+                    </div>
+
+                    <a class="btn btn-secondary" style="width: 100%" href="{{ url_for('all_users') }}">Manage All Users</a>
+                </div>
+            </div>
+
+            <!-- Donation Management -->
+            <div class="section-card">
+                <div class="section-header">🍽️ Donation Management</div>
+                <div class="section-content">
+                    <p>Monitor and manage all food donations</p>
+
+                    <div class="data-list">
+                        {% for donation in recent_donations %}
+                        <div class="data-item">
+                            <div class="data-item-info">
+                                <h4>{{ donation.food_name }} - {{ donation.quantity }}kg</h4>
+                                <p>Donor: {{ donation.donor_organization or 'Not provided' }}</p>
+                                <p>Status: {{ donation.status|capitalize }} | Expiry: {{ donation.expiry_date }}</p>
+                            </div>
+                            <div class="actions">
+                                <a class="btn" href="{{ url_for('donation_history') }}">View Details</a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p>No donations found.</p>
+                        {% endfor %}
+                    </div>
+
+                    <a class="btn btn-secondary" style="width: 100%" href="{{ url_for('donation_history') }}">Manage All Donations</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <h2>📊 System Analytics</h2>
+            <div class="charts-grid">
+
+                <div class="chart-card">
+                    <h3>📈 Donations by Preparation Date</h3>
+                    {% for item in donation_trend %}
+                    <div class="chart-row">
+                        <div class="chart-label">
+                            <span>{{ item.donation_date }}</span>
+                            <strong>{{ item.total }}</strong>
+                        </div>
+                        <progress class="chart-bar" value="{{ item.total }}" max="{{ max_trend or 1 }}">{{ item.total }}</progress>
+                    </div>
+                    {% else %}
+                    <p class="chart-empty">No donation dates available.</p>
+                    {% endfor %}
+                </div>
+
+                <div class="chart-card">
+                    <h3>🥧 Food Type Distribution</h3>
+                    {% for item in food_distribution %}
+                    <div class="chart-row">
+                        <div class="chart-label">
+                            <span>{{ item.food_type }}</span>
+                            <strong>{{ item.quantity }} kg</strong>
+                        </div>
+                        <progress class="chart-bar" value="{{ item.quantity }}" max="{{ max_food_quantity or 1 }}">{{ item.quantity }}</progress>
+                    </div>
+                    {% else %}
+                    <p class="chart-empty">No food distribution data available.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>
+            © 2026 AI Food Waste Redistribution System | SDG 12:
+            Responsible Consumption and Production
+        </p>
+    </footer>
+
+</body>
+</html>
+
+admin.html    admin page
