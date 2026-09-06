@@ -75,10 +75,10 @@ def send_reset_email(email, reset_url):
 
 def get_connection():
     return pymysql.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=int(os.environ.get("DB_PORT", "3306")),
-        user=os.environ.get("DB_USER", "root"),
-        password=os.environ.get("DB_PASSWORD", "mysql"),
+        host=os.environ.get("DB_HOST", "foodshare-ai-hasinikorlepara1605-dd4c.e.aivencloud.com"),
+        port=int(os.environ.get("DB_PORT", "11903")),
+        user=os.environ.get("DB_USER", "avnadmin"),
+        password=os.environ.get("DB_PASSWORD", "AVNS_1c09_HVH3BCinlj-ro7"),
         database=os.environ.get("DB_NAME", "food"),
         cursorclass=pymysql.cursors.DictCursor
     )
